@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.Film;
 
-import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,15 +13,15 @@ class FilmControllerTest {
 
     FilmController filmController;
 
-    Film film = new Film("Film 1", "Film 1", LocalDate.of(2012, 12, 12), Duration.ofMinutes(190));
-    Film filmFailName = new Film("", "Film 2", LocalDate.of(2012, 12, 12), Duration.ofMinutes(190));
+    Film film = new Film("Film 1", "Film 1", LocalDate.of(2012, 12, 12), 190);
+    Film filmFailName = new Film("", "Film 2", LocalDate.of(2012, 12, 12), 190);
     Film filmFailDescription = new Film("Film 3", "Пятеро друзей ( комик-группа «Шарло»)," +
             " приезжают в город Бризуль. Здесь они хотят разыскать господина Огюста Куглова, который задолжал им деньги," +
             " а именно 20 миллионов. о Куглов, который за время «своего отсутствия», стал кандидатом Коломбани.",
-            LocalDate.of(2012, 12, 12), Duration.ofMinutes(190));
-    Film filmFailReleaseDate = new Film("Film 4", "Film 4", LocalDate.of(1812, 12, 12), Duration.ofMinutes(190));
-    Film filmFailDuration = new Film("Film 5", "Film 5", LocalDate.of(2012, 12, 12), Duration.ofMinutes(-190));
-    Film updatedFilm = new Film("Film 1", "Updated Film 1", LocalDate.of(2012, 12, 12), Duration.ofMinutes(190));
+            LocalDate.of(2012, 12, 12), 190);
+    Film filmFailReleaseDate = new Film("Film 4", "Film 4", LocalDate.of(1812, 12, 12), 190);
+    Film filmFailDuration = new Film("Film 5", "Film 5", LocalDate.of(2012, 12, 12), -190);
+    Film updatedFilm = new Film("Film 1", "Updated Film 1", LocalDate.of(2012, 12, 12), 190);
 
     @BeforeEach
     void createController() {

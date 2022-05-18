@@ -33,7 +33,7 @@ public class FilmController {
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.warn("Валидация не пройдена");
             throw new ValidationException("Дата релиза не должна быть раньше 28 декабря 1895г");
-        } else if (film.getDuration().isNegative()) {
+        } else if (film.getDuration() < 0) {
             log.warn("Валидация не пройдена");
             throw new ValidationException("Продолжительность не может быть отрицательная");
         } else {
