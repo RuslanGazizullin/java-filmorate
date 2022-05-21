@@ -1,10 +1,15 @@
 package ru.yandex.praktikum.filmorate.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.praktikum.filmorate.adapter.LocalDateAdapter;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.User;
+import ru.yandex.praktikum.filmorate.validation.UserValidation;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,47 +17,51 @@ import java.util.HashMap;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
 
     private final HashMap<Integer, User> users = new HashMap<>();
     private int id = 1;
-    private final static Logger log = LoggerFactory.getLogger(UserController.class);
+    Gson gson = new GsonBuilder()
+            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+            .create();
 
     private int generateId() {
         return id++;
     }
 
     @PostMapping()
-    public User add(@RequestBody User user) throws ValidationException {
-        if (user.getEmail().isBlank() || !user.getEmail().contains("@")) {
-            log.warn("Валидация не пройдена");
-            throw new ValidationException("Электронная почта отсутствует или неверный формат");
-        } else if (user.getLogin().isBlank() || user.getLogin().contains(" ")) {
-            log.warn("Валидация не пройдена");
-            throw new ValidationException("Логин не может быть пустым или содержать пробелы");
-        } else if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.warn("Валидация не пройдена");
-            throw new ValidationException("Неправильная дата рождения");
-        } else {
+    public ResponseEntity<String> add(@RequestBody User user) {
+        UserValidation userValidation = new UserValidation(user);
+        try {
+            userValidation.emailValidation();
+            userValidation.loginValidation();
+            userValidation.birthdayValidation();
             if (user.getName().isBlank()) {
                 user.setName(user.getLogin());
             }
-            user.setId(generateId());
-            users.put(user.getId(), user);
+            int id = generateId();
+            user.setId(id);
+            users.put(id, user);
             log.info("Пользователь успешно добавлен");
-            return user;
+            return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(user));
+        } catch (ValidationException e) {
+            log.warn("Валидация не пройдена");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 
     @PutMapping()
-    public User update(@RequestBody User user) throws ValidationException {
-        if (users.containsKey(user.getId())) {
+    public ResponseEntity<String> update(@RequestBody User user) {
+        UserValidation userValidation = new UserValidation(user);
+        try {
+            userValidation.idValidation(users);
             users.put(user.getId(), user);
             log.info("Пользователь успешно обновлён");
-            return user;
-        } else {
+            return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(user));
+        } catch (ValidationException e) {
             log.warn("Валидация не пройдена");
-            throw new ValidationException("Фильм с таким id не существует");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 
