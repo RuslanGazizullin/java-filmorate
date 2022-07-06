@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class FilmControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -42,7 +42,7 @@ class FilmControllerTest {
     @DirtiesContext
     void testFindAll() throws Exception {
         ArrayList<Film> films = new ArrayList<>();
-        film.setId(1);
+        film.setId(1L);
         films.add(film);
         mockMvc.perform(post("/films")
                 .content(gson.toJson(film))
@@ -121,7 +121,7 @@ class FilmControllerTest {
     @Test
     @DirtiesContext
     void testUpdate() throws Exception {
-        updatedFilm.setId(1);
+        updatedFilm.setId(1L);
         mockMvc.perform(post("/films")
                 .content(gson.toJson(film))
                 .contentType(MediaType.APPLICATION_JSON));
@@ -135,7 +135,7 @@ class FilmControllerTest {
     @Test
     @DirtiesContext
     void testUpdateFailId() throws Exception {
-        updatedFilm.setId(-1);
+        updatedFilm.setId(-1L);
         mockMvc.perform(post("/films")
                 .content(gson.toJson(film))
                 .contentType(MediaType.APPLICATION_JSON));

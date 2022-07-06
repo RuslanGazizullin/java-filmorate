@@ -1,11 +1,13 @@
 package ru.yandex.praktikum.filmorate.validation;
 
+import org.springframework.stereotype.Component;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 
+@Component
 public class FilmValidation {
     Film film;
 
@@ -37,7 +39,7 @@ public class FilmValidation {
         }
     }
 
-    public void idValidation(HashMap<Integer, Film> films) throws ValidationException {
+    public void idValidation(HashMap<Long, Film> films) throws ValidationException {
         if (!films.containsKey(film.getId())) {
             throw new ValidationException("Фильм с таким id не существует");
         }

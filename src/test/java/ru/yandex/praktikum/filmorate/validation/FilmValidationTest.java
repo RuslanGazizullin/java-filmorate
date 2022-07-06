@@ -21,7 +21,7 @@ class FilmValidationTest {
             LocalDate.of(2012, 12, 12), 190);
     Film filmFailReleaseDate = new Film("Film 4", "Film 4", LocalDate.of(1812, 12, 12), 190);
     Film filmFailDuration = new Film("Film 5", "Film 5", LocalDate.of(2012, 12, 12), -190);
-    HashMap<Integer, Film> films = new HashMap<>();
+    HashMap<Long, Film> films = new HashMap<>();
 
     @Test
     void testNameValidation() {
@@ -69,7 +69,7 @@ class FilmValidationTest {
 
     @Test
     void idValidation() {
-        films.put(1, film);
+        films.put(1L, film);
         filmValidation = new FilmValidation(updatedFilm);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,

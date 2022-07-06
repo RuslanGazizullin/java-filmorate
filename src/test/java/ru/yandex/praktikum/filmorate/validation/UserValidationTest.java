@@ -19,7 +19,7 @@ class UserValidationTest {
     User userFailLogin = new User("user@user.ru", "user 1", "User_name", LocalDate.of(1986, 2, 19));
     User userEmptyLogin = new User("user@user.ru", "", "User_name", LocalDate.of(1986, 2, 19));
     User userFailBirthday = new User("user@user.ru", "user", "User_name", LocalDate.of(2086, 2, 19));
-    HashMap<Integer, User> users = new HashMap<>();
+    HashMap<Long, User> users = new HashMap<>();
 
     @Test
     void testEmptyEmailValidation() {
@@ -78,7 +78,7 @@ class UserValidationTest {
 
     @Test
     void testIdValidation() {
-        users.put(1, user);
+        users.put(1L, user);
         userValidation = new UserValidation(updatedUser);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,
