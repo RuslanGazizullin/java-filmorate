@@ -7,6 +7,7 @@ import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.Film;
 import ru.yandex.praktikum.filmorate.validation.FilmValidation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -53,7 +54,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     public List<Film> findAll() {
         log.info("Список фильмов получен");
-        return films.values().stream().toList();
+        return new ArrayList<>(films.values());
     }
 
     @Override

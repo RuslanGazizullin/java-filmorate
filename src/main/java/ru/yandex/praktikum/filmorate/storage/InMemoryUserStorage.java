@@ -7,6 +7,7 @@ import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.User;
 import ru.yandex.praktikum.filmorate.validation.UserValidation;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -55,7 +56,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     public List<User> findAll() {
         log.info("Список пользователей получен");
-        return users.values().stream().toList();
+        return new ArrayList<>(users.values());
     }
 
     public User findById(Long id) throws ObjectNotFoundException {
