@@ -1,6 +1,7 @@
 package ru.yandex.praktikum.filmorate.validation;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.User;
 
@@ -11,6 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserValidationTest {
 
+    @Autowired
     UserValidation userValidation;
     User user = new User("user@user.ru", "user", "User_name", LocalDate.of(1986, 2, 19));
     User updatedUser = new User("user@user.ru", "user", "Updated_user_name", LocalDate.of(1986, 2, 19));
@@ -23,10 +25,9 @@ class UserValidationTest {
 
     @Test
     void testEmptyEmailValidation() {
-        userValidation = new UserValidation(userEmptyEmail);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,
-                () -> userValidation.emailValidation()
+                () -> userValidation.emailValidation(userEmptyEmail)
         );
         assertEquals(validationException.getMessage(), "Электронная почта отсутствует или неверный формат",
                 "Текст ошибки не совпадает");
@@ -34,10 +35,9 @@ class UserValidationTest {
 
     @Test
     void testFailEmailValidation() {
-        userValidation = new UserValidation(userFailEmail);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,
-                () -> userValidation.emailValidation()
+                () -> userValidation.emailValidation(userFailEmail)
         );
         assertEquals(validationException.getMessage(), "Электронная почта отсутствует или неверный формат",
                 "Текст ошибки не совпадает");
@@ -45,10 +45,9 @@ class UserValidationTest {
 
     @Test
     void testEmptyLoginValidation() {
-        userValidation = new UserValidation(userEmptyLogin);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,
-                () -> userValidation.loginValidation()
+                () -> userValidation.loginValidation(userEmptyLogin)
         );
         assertEquals(validationException.getMessage(), "Логин не может быть пустым или содержать пробелы",
                 "Текст ошибки не совпадает");
@@ -56,10 +55,9 @@ class UserValidationTest {
 
     @Test
     void testFailLoginValidation() {
-        userValidation = new UserValidation(userFailLogin);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,
-                () -> userValidation.loginValidation()
+                () -> userValidation.loginValidation(userFailLogin)
         );
         assertEquals(validationException.getMessage(), "Логин не может быть пустым или содержать пробелы",
                 "Текст ошибки не совпадает");
@@ -67,10 +65,9 @@ class UserValidationTest {
 
     @Test
     void testFailBirthdayValidation() {
-        userValidation = new UserValidation(userFailBirthday);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,
-                () -> userValidation.birthdayValidation()
+                () -> userValidation.birthdayValidation(userFailBirthday)
         );
         assertEquals(validationException.getMessage(), "Неправильная дата рождения",
                 "Текст ошибки не совпадает");
@@ -79,10 +76,9 @@ class UserValidationTest {
     @Test
     void testIdValidation() {
         users.put(1L, user);
-        userValidation = new UserValidation(updatedUser);
         final ValidationException validationException = assertThrows(
                 ValidationException.class,
-                () -> userValidation.idValidation(users)
+                () -> userValidation.idValidation(users, updatedUser)
         );
         assertEquals(validationException.getMessage(), "Пользователь с таким id не существует",
                 "Текст ошибки не совпадает");
