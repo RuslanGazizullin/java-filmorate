@@ -4,8 +4,8 @@ import ru.yandex.praktikum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.Film;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface FilmStorage {
 
@@ -13,7 +13,7 @@ public interface FilmStorage {
 
     Film update(Film film) throws ValidationException, ObjectNotFoundException;
 
-    HashMap<Long, Film> getFilms();
+    Map<Long, Film> getFilms();
 
     List<Film> findAll();
 

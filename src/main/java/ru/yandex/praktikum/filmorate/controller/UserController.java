@@ -6,7 +6,6 @@ import ru.yandex.praktikum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.User;
 import ru.yandex.praktikum.filmorate.service.UserService;
-import ru.yandex.praktikum.filmorate.storage.UserStorage;
 
 import java.util.List;
 
@@ -15,19 +14,16 @@ import java.util.List;
 public class UserController {
 
     @Autowired
-    UserStorage userStorage;
-
-    @Autowired
-    UserService userService;
+    private UserService userService;
 
     @PostMapping()
     public User add(@RequestBody User user) throws ValidationException {
-        return userStorage.add(user);
+        return userService.add(user);
     }
 
     @PutMapping()
     public User update(@RequestBody User user) throws ValidationException, ObjectNotFoundException {
-        return userStorage.update(user);
+        return userService.update(user);
     }
 
     @PutMapping("/{id}/friends/{friendId}")
@@ -42,12 +38,12 @@ public class UserController {
 
     @GetMapping()
     public List<User> findAll() {
-        return userStorage.findAll();
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
     public User findById(@PathVariable Long id) throws ObjectNotFoundException {
-        return userStorage.findById(id);
+        return userService.findById(id);
     }
 
     @GetMapping("/{id}/friends")

@@ -1,8 +1,8 @@
 package ru.yandex.praktikum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.yandex.praktikum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.Film;
 import ru.yandex.praktikum.filmorate.validation.FilmValidation;
@@ -10,6 +10,7 @@ import ru.yandex.praktikum.filmorate.validation.FilmValidation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -18,16 +19,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final HashMap<Long, Film> films = new HashMap<>();
     private Long id = 1L;
 
+    @Autowired
+    private FilmValidation filmValidation;
+
     private Long generateId() {
         return id++;
     }
 
     public Film add(Film film) throws ValidationException {
-        FilmValidation filmValidation = new FilmValidation(film);
-        filmValidation.nameValidation();
-        filmValidation.descriptionValidation();
-        filmValidation.releaseDateValidation();
-        filmValidation.durationValidation();
+        filmValidation.validateFilm(film);
         Long id = generateId();
         film.setId(id);
         films.put(id, film);
@@ -35,20 +35,14 @@ public class InMemoryFilmStorage implements FilmStorage {
         return film;
     }
 
-    public Film update(Film film) throws ValidationException, ObjectNotFoundException {
-        if (films.containsKey(film.getId())) {
-            FilmValidation filmValidation = new FilmValidation(film);
-            filmValidation.idValidation(films);
-            films.put(film.getId(), film);
-            log.info("Фильм успешно обновлен");
-            return film;
-        } else {
-            log.warn("Фильм с таким id не существует");
-            throw new ObjectNotFoundException("Фильм с таким id не существует");
-        }
+    public Film update(Film film) throws ValidationException {
+        filmValidation.idValidation(films, film);
+        films.put(film.getId(), film);
+        log.info("Фильм успешно обновлен");
+        return film;
     }
 
-    public HashMap<Long, Film> getFilms() {
+    public Map<Long, Film> getFilms() {
         return films;
     }
 
@@ -57,14 +51,8 @@ public class InMemoryFilmStorage implements FilmStorage {
         return new ArrayList<>(films.values());
     }
 
-    @Override
-    public Film findById(Long id) throws ObjectNotFoundException {
-        if (films.containsKey(id)) {
-            log.info("Фильм найден");
-            return films.get(id);
-        } else {
-            log.warn("Фильм с таким id не существует");
-            throw new ObjectNotFoundException("Фильм с таким id не существует");
-        }
+    public Film findById(Long id) {
+        log.info("Фильм найден");
+        return films.get(id);
     }
 }

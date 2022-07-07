@@ -6,7 +6,6 @@ import ru.yandex.praktikum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.Film;
 import ru.yandex.praktikum.filmorate.service.FilmService;
-import ru.yandex.praktikum.filmorate.storage.FilmStorage;
 
 import java.util.List;
 
@@ -15,19 +14,16 @@ import java.util.List;
 public class FilmController {
 
     @Autowired
-    FilmStorage filmStorage;
-
-    @Autowired
-    FilmService filmService;
+    private FilmService filmService;
 
     @PostMapping()
     public Film add(@RequestBody Film film) throws ValidationException {
-        return filmStorage.add(film);
+        return filmService.add(film);
     }
 
     @PutMapping()
     public Film update(@RequestBody Film film) throws ValidationException, ObjectNotFoundException {
-        return filmStorage.update(film);
+        return filmService.update(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -42,12 +38,12 @@ public class FilmController {
 
     @GetMapping()
     public List<Film> findAll() {
-        return filmStorage.findAll();
+        return filmService.findAll();
     }
 
     @GetMapping("/{id}")
     public Film findById(@PathVariable Long id) throws ObjectNotFoundException {
-        return filmStorage.findById(id);
+        return filmService.findById(id);
     }
 
     @GetMapping("/popular")

@@ -4,8 +4,8 @@ import ru.yandex.praktikum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.User;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface UserStorage {
 
@@ -13,7 +13,7 @@ public interface UserStorage {
 
     User update(User user) throws ValidationException, ObjectNotFoundException;
 
-    HashMap<Long, User> getUsers();
+    Map<Long, User> getUsers();
 
     List<User> findAll();
 

@@ -10,13 +10,14 @@ import ru.yandex.praktikum.filmorate.storage.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
 public class UserService {
 
     @Autowired
-    UserStorage userStorage;
+    private UserStorage userStorage;
 
     public User addFriend(Long id, Long friendId) throws ObjectNotFoundException, ValidationException {
         if (userStorage.getUsers().containsKey(id) && userStorage.getUsers().containsKey(friendId)) {
@@ -61,12 +62,41 @@ public class UserService {
     }
 
     public List<User> findFriends(Long id) throws ObjectNotFoundException {
-        List<User> friends = new ArrayList<>();
-        List<Long> friendsId = new ArrayList<>(userStorage.findById(id).getFriends());
-        for (Long friendId : friendsId) {
-            friends.add(userStorage.findById(friendId));
+        if (userStorage.getUsers().containsKey(id)) {
+            List<User> friends = new ArrayList<>();
+            for (Long friendId : userStorage.findById(id).getFriends()) {
+                friends.add(userStorage.findById(friendId));
+            }
+            log.info("Список друзей сформирован");
+            return friends;
+        } else {
+            throw new ObjectNotFoundException("Пользователь не найден");
         }
-        log.info("Список друзей сформирован");
-        return friends;
+    }
+
+    public User add(User user) throws ValidationException {
+        return userStorage.add(user);
+    }
+
+    public User update(User user) throws ValidationException, ObjectNotFoundException {
+        if (userStorage.getUsers().containsKey(user.getId())) {
+            return userStorage.update(user);
+        } else {
+            log.warn("Пользователь с таким id не существует");
+            throw new ObjectNotFoundException("Пользователь с таким id не существует");
+        }
+    }
+
+    public List<User> findAll() {
+        return userStorage.findAll();
+    }
+
+    public User findById(Long id) throws ObjectNotFoundException {
+        if (userStorage.getUsers().containsKey(id)) {
+            return userStorage.findById(id);
+        } else {
+            log.warn("Пользователь с таким id не существует");
+            throw new ObjectNotFoundException("Пользователь с таким id не существует");
+        }
     }
 }

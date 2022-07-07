@@ -9,9 +9,7 @@ import ru.yandex.praktikum.filmorate.model.Film;
 import ru.yandex.praktikum.filmorate.storage.FilmStorage;
 import ru.yandex.praktikum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,20 +17,13 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     @Autowired
-    FilmStorage filmStorage;
+    private FilmStorage filmStorage;
 
     @Autowired
-    UserStorage userStorage;
-
-    static class TenMostPopularFilmComparator implements Comparator<Film> {
-        @Override
-        public int compare(Film film1, Film film2) {
-            return film2.getLikes().size() - film1.getLikes().size();
-        }
-    }
+    private UserStorage userStorage;
 
     public Film addLike(Long userId, Long filmId) throws ValidationException, ObjectNotFoundException {
-        Film film = filmStorage.getFilms().getOrDefault(filmId, null);
+        Film film = filmStorage.findById(filmId);
         if (film != null && userStorage.getUsers().containsKey(userId)) {
             film.getLikes().add(userId);
             filmStorage.update(film);
@@ -44,7 +35,7 @@ public class FilmService {
     }
 
     public Film deleteLike(Long userId, Long filmId) throws ValidationException, ObjectNotFoundException {
-        Film film = filmStorage.getFilms().getOrDefault(filmId, null);
+        Film film = filmStorage.findById(filmId);
         if (film != null && userStorage.getUsers().containsKey(userId) &&
                 film.getLikes().contains(userId)) {
             film.getLikes().remove(userId);
@@ -57,15 +48,40 @@ public class FilmService {
     }
 
     public List<Film> showMostPopularFilms(Integer count) {
-        TenMostPopularFilmComparator tenMostPopularFilmComparator = new TenMostPopularFilmComparator();
-        ArrayList<Film> allFilms = new ArrayList<>(filmStorage.getFilms().values());
-        allFilms.sort(tenMostPopularFilmComparator);
-        if (allFilms.size() == 0) {
+        ArrayList<Film> sortedFilms = new ArrayList<>(filmStorage.getFilms().values());
+        sortedFilms.sort((film1, film2) -> film2.getLikes().size() - film1.getLikes().size());
+        if (sortedFilms.size() == 0) {
             log.info("Фильмы не найдены");
             return null;
         } else {
             log.info("Список самых популярных фильмов сформирован");
-            return allFilms.stream().limit(count).collect(Collectors.toList());
+            return sortedFilms.stream().limit(count).collect(Collectors.toList());
+        }
+    }
+
+    public Film add(Film film) throws ValidationException {
+        return filmStorage.add(film);
+    }
+
+    public Film update(Film film) throws ValidationException, ObjectNotFoundException {
+        if (filmStorage.getFilms().containsKey(film.getId())) {
+            return filmStorage.update(film);
+        } else {
+            log.warn("Фильм с таким id не существует");
+            throw new ObjectNotFoundException("Фильм с таким id не существует");
+        }
+    }
+
+    public List<Film> findAll() {
+        return filmStorage.findAll();
+    }
+
+    public Film findById(Long id) throws ObjectNotFoundException {
+        if (filmStorage.getFilms().containsKey(id)) {
+            return filmStorage.findById(id);
+        } else {
+            log.warn("Фильм с таким id не существует");
+            throw new ObjectNotFoundException("Фильм с таким id не существует");
         }
     }
 }
