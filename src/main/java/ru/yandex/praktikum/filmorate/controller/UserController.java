@@ -1,72 +1,58 @@
 package ru.yandex.praktikum.filmorate.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.praktikum.filmorate.adapter.LocalDateAdapter;
+import ru.yandex.praktikum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.User;
-import ru.yandex.praktikum.filmorate.validation.UserValidation;
+import ru.yandex.praktikum.filmorate.service.UserService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-@Slf4j
 public class UserController {
 
-    private final HashMap<Integer, User> users = new HashMap<>();
-    private int id = 1;
-    Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-            .create();
-
-    private int generateId() {
-        return id++;
-    }
+    @Autowired
+    private UserService userService;
 
     @PostMapping()
-    public ResponseEntity<String> add(@RequestBody User user) {
-        UserValidation userValidation = new UserValidation(user);
-        try {
-            userValidation.emailValidation();
-            userValidation.loginValidation();
-            userValidation.birthdayValidation();
-            if (user.getName().isBlank()) {
-                user.setName(user.getLogin());
-            }
-            int id = generateId();
-            user.setId(id);
-            users.put(id, user);
-            log.info("Пользователь успешно добавлен");
-            return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(user));
-        } catch (ValidationException e) {
-            log.warn("Валидация не пройдена");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public User add(@RequestBody User user) throws ValidationException {
+        return userService.add(user);
     }
 
     @PutMapping()
-    public ResponseEntity<String> update(@RequestBody User user) {
-        UserValidation userValidation = new UserValidation(user);
-        try {
-            userValidation.idValidation(users);
-            users.put(user.getId(), user);
-            log.info("Пользователь успешно обновлён");
-            return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(user));
-        } catch (ValidationException e) {
-            log.warn("Валидация не пройдена");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    public User update(@RequestBody User user) throws ValidationException, ObjectNotFoundException {
+        return userService.update(user);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable Long id, @PathVariable Long friendId) throws ValidationException, ObjectNotFoundException {
+        return userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User deleteFriend(@PathVariable Long id, @PathVariable Long friendId) throws ValidationException, ObjectNotFoundException {
+        return userService.deleteFriend(id, friendId);
     }
 
     @GetMapping()
-    public ArrayList<User> findAll() {
-        return new ArrayList<>(users.values());
+    public List<User> findAll() {
+        return userService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public User findById(@PathVariable Long id) throws ObjectNotFoundException {
+        return userService.findById(id);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> findFriends(@PathVariable Long id) throws ObjectNotFoundException {
+        return userService.findFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> findCommonFriends(@PathVariable Long id, @PathVariable Long otherId) throws ObjectNotFoundException {
+        return userService.findCommonFriends(id, otherId);
     }
 }

@@ -1,70 +1,53 @@
 package ru.yandex.praktikum.filmorate.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.praktikum.filmorate.adapter.LocalDateAdapter;
+import ru.yandex.praktikum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.praktikum.filmorate.exception.ValidationException;
 import ru.yandex.praktikum.filmorate.model.Film;
-import ru.yandex.praktikum.filmorate.validation.FilmValidation;
+import ru.yandex.praktikum.filmorate.service.FilmService;
 
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.List;
 
 @RestController
 @RequestMapping("/films")
-@Slf4j
 public class FilmController {
 
-    private final HashMap<Integer, Film> films = new HashMap<>();
-    private int id = 1;
-    Gson gson = new GsonBuilder()
-            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-            .create();
-
-    private int generateId() {
-        return id++;
-    }
+    @Autowired
+    private FilmService filmService;
 
     @PostMapping()
-    public ResponseEntity<String> add(@RequestBody Film film) {
-        FilmValidation filmValidation = new FilmValidation(film);
-        try {
-            filmValidation.nameValidation();
-            filmValidation.descriptionValidation();
-            filmValidation.releaseDateValidation();
-            filmValidation.durationValidation();
-            int id = generateId();
-            film.setId(id);
-            films.put(id, film);
-            log.info("Фильм успешно добавлен");
-            return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(film));
-        } catch (ValidationException e) {
-            log.warn("Валидация не пройдена");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
+    public Film add(@RequestBody Film film) throws ValidationException {
+        return filmService.add(film);
     }
 
     @PutMapping()
-    public ResponseEntity<String> update(@RequestBody Film film) {
-        FilmValidation filmValidation = new FilmValidation(film);
-        try {
-            filmValidation.idValidation(films);
-            films.put(film.getId(), film);
-            log.info("Фильм успешно обновлен");
-            return ResponseEntity.status(HttpStatus.OK).body(gson.toJson(film));
-        } catch (ValidationException e) {
-            log.warn("Валидация не пройдена");
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+    public Film update(@RequestBody Film film) throws ValidationException, ObjectNotFoundException {
+        return filmService.update(film);
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable Long id, @PathVariable Long userId) throws ValidationException, ObjectNotFoundException {
+        return filmService.addLike(userId, id);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable Long id, @PathVariable Long userId) throws ValidationException, ObjectNotFoundException {
+        return filmService.deleteLike(userId, id);
     }
 
     @GetMapping()
-    public ArrayList<Film> findAll() {
-        return new ArrayList<>(films.values());
+    public List<Film> findAll() {
+        return filmService.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public Film findById(@PathVariable Long id) throws ObjectNotFoundException {
+        return filmService.findById(id);
+    }
+
+    @GetMapping("/popular")
+    public List<Film> showMostPopularFilms(@RequestParam(defaultValue = "10") Integer count) {
+        return filmService.showMostPopularFilms(count);
     }
 }

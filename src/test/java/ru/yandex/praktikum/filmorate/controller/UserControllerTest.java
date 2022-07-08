@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class UserControllerTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    MockMvc mockMvc;
 
     Gson gson = new GsonBuilder()
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -41,7 +41,7 @@ class UserControllerTest {
     @DirtiesContext
     void testFindAll() throws Exception {
         ArrayList<User> users = new ArrayList<>();
-        user.setId(1);
+        user.setId(1L);
         users.add(user);
         mockMvc.perform(post("/users")
                 .content(gson.toJson(user))
@@ -142,7 +142,7 @@ class UserControllerTest {
     @Test
     @DirtiesContext
     void testUpdate() throws Exception {
-        updatedUser.setId(1);
+        updatedUser.setId(1L);
         mockMvc.perform(post("/users")
                 .content(gson.toJson(user))
                 .contentType(MediaType.APPLICATION_JSON));
@@ -156,7 +156,7 @@ class UserControllerTest {
     @Test
     @DirtiesContext
     void testUpdateFailId() throws Exception {
-        updatedUser.setId(-1);
+        updatedUser.setId(-1L);
         mockMvc.perform(post("/users")
                 .content(gson.toJson(user))
                 .contentType(MediaType.APPLICATION_JSON));
