@@ -52,7 +52,7 @@ public class FilmService {
         sortedFilms.sort((film1, film2) -> film2.getLikes().size() - film1.getLikes().size());
         if (sortedFilms.size() == 0) {
             log.info("Фильмы не найдены");
-            return null;
+            return sortedFilms;
         } else {
             log.info("Список самых популярных фильмов сформирован");
             return sortedFilms.stream().limit(count).collect(Collectors.toList());

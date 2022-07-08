@@ -11,6 +11,7 @@ import ru.yandex.praktikum.filmorate.storage.UserStorage;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -63,12 +64,16 @@ public class UserService {
 
     public List<User> findFriends(Long id) throws ObjectNotFoundException {
         if (userStorage.getUsers().containsKey(id)) {
-            List<User> friends = new ArrayList<>();
-            for (Long friendId : userStorage.findById(id).getFriends()) {
-                friends.add(userStorage.findById(friendId));
-            }
             log.info("Список друзей сформирован");
-            return friends;
+            return userStorage.findById(id).getFriends().stream().map(friendId ->
+            {
+                try {
+                    return userStorage.findById(friendId);
+                } catch (ObjectNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            }).collect(Collectors.toList());
+
         } else {
             throw new ObjectNotFoundException("Пользователь не найден");
         }
